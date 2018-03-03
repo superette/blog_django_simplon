@@ -1,0 +1,143 @@
+pg_manage : 
+
+https://github.com/rjuju/postgres-manage
+
+cloner le dépot, ainsi que le dépot PostgreSQL :
+	https://github.com/rjuju/postgres-manage.git
+	https://github.com/postgres/postgres.git
+
+Conseil, créez un dossier git où vous voulez et 
+clonez les deux dépots dans le même niveau d'arborescence
+
+``̀`
+[9.6.6/1](djangogirls) [perette@bobbynette git]$ pwd
+/home/perette/git
+[9.6.6/1](djangogirls) [perette@bobbynette git]$ ll
+[..]
+drwxr-xr-x 1 perette perette   292 13 févr. 10:08 postgres
+drwxr-xr-x 1 perette perette    74 13 févr. 10:27 postgres-manage
+[..]
+``̀`
+
+Ajouter les lignes suivantes à votre bashrc :
+
+```
+export PGMANAGE="/home/perette/git/postgres-manage/postgres.pl"
+alias pgstart="$PGMANAGE -mode start"
+alias pgstartall="$PGMANAGE -mode startall"
+alias pgstop="$PGMANAGE -mode stop"
+alias pgstopall="$PGMANAGE -mode stopall"
+alias pgrestart="pgstop;pgstart"
+alias pgrestartall="pgstopall;pgstartall"
+alias pgbuild="$PGMANAGE -mode build"
+alias pgbuildpostgis="$PGMANAGE -mode build_postgis"
+alias pgclean="$PGMANAGE -mode clean"
+alias pgls="$PGMANAGE -mode list"
+alias pglsavail="$PGMANAGE -mode list_avail"
+alias pglslatest="$PGMANAGE -mode list_latest"
+alias pgrebuild="$PGMANAGE -mode rebuild_latest"
+alias pggitupdate="$PGMANAGE -mode git_update"
+alias pgdoxy="$PGMANAGE -mode doxy"
+alias pgslave="$PGMANAGE --mode slave"
+# Juste là à titre d'exemple
+#export PGSUPARGS='-c fsync=off -c shared_buffers=1GB'
+
+function pg()
+{
+    source <(/home/perette/git/postgres-manage/postgres.pl -version $1 -mode env)
+    export PGHOST=/tmp
+}
+
+
+# Activate ccache
+export PATH="/usr/lib/ccache/bin/:$PATH"
+```
+
+changer la conf (fichier ~/git/postgres-manage/conf)
+## A CORRIGER
+[9.6.6/1](djangogirls) [perette@bobbynette postgres-manage]$ cat conf 
+parallelisme=6
+work_dir=/home/perette/postgres
+git_local_repo=/home/marc/postgres/postgresql-git
+doxy_file=/home/marc/postgres/Doxyfile
+min_version=9.1 # Version minimum pour laquelle compiler
+# if you don't want to run the regression tests
+# make_check=0
+# if you want to overload checkpoint_segments, or (min|max)_wal_size
+# checkpoint_segments=64
+# min_wal_size=512MB
+# max_wal_size=1500MB
+# If you don't want the default build environment
+# CC=
+# CFLAGS=
+# Default CONFIGOPTS
+# CONFIGOPTS=--enable-thread-safety --with-openssl --with-libxml --enable-nls --enable-debug
+# LD_LIBRARY_PATH en dur à utiliser à la place de celui par défaut.
+LD_LIBRARY_PATH=pouet
+
+On liste les dernières version mineures pour chaque version majeures :
+`pglslatest`
+
+On liste les versions installées :
+`pg ls`
+
+
+On charge les variables d'environnement de la version que l'on veut utiliser :
+```
+pg 9.6.6/2
+``` 
+
+(utiliser /1 /2 /3 ... pour construire des serveurs PostgreSQL d'une même version, /0 est utilisé par défaut)
+
+
+```
+[9.6.6/2](djangogirls) [perette@bobbynette ~]$ pgls
+  Instance     Port Esclave?
+-----------------------------
+  9.6.6/0     11041 Non
+  9.6.6/1      3451 Non
+* 9.6.6/2     17219 Non
+```
+
+* signifie que l'instance est UP (9.6.6/2)
+
+On démarre l'instance 9.6.6/1 :
+
+```
+pg 9.6.6/1
+pgstart
+```
+
+L'instance est démarrée :
+
+```
+[9.6.6/1](djangogirls) [perette@bobbynette ~]$ pgls
+  Instance     Port Esclave?
+-----------------------------
+  9.6.6/0     11041 Non
+* 9.6.6/1      3451 Non
+* 9.6.6/2     17219 Non
+```
+
+On charge l'environnement 9.6.6/2, on se connecte à l'instance et on vérifie les informations :
+
+```
+[9.6.6/1](djangogirls) [perette@bobbynette ~]$ pg 9.6.6/2
+[9.6.6/2](djangogirls) [perette@bobbynette ~]$ psql 
+psql (9.6.6)
+Saisissez « help » pour l'aide.
+
+perette=# \conninfo
+Vous êtes connecté à la base de données « perette » en tant qu'utilisateur « perette » via le socket dans « /tmp » via le port « 17219 ».
+
+perette=# show data_directory;
+                   data_directory                   
+----------------------------------------------------
+
+/home/perette/temp/postgres/postgresql-9.6.6/data2
+```
+
+
+
+
+

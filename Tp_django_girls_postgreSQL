@@ -1,0 +1,70 @@
+# Mise en oeuvre de django, côté dba.
+
+On suit le tutoriel suivant pour la partie Django,
+Sauf pour la configuration de la base de données
+On va utiliser PostgreSQL ^_^
+
+Django: 
+	https://tutorial.djangogirls.org/fr
+SpecifPg: 
+	https://blog.lws-hosting.com/serveur-dedie/utiliser-postgresql-vos-application-django-ubuntu-16-04
+
+Se créer un compte sur le site d'hébergement pythonanywhere :
+
+https://www.pythonanywhere.com/user/superette/
+
+en guise d'exemple :
+
+mon utilisateur système (OS) est perette
+L'instance que je vais utiliser pour travailler est la 9.6.6/1
+J'y ai créé un utilisateur superette, une base du même nom : 
+
+`̀`̀`
+CREATE USER superette;
+CREATE DATABASE superette;
+`̀`̀`
+
+J'ai accordé tous les droits sur la base superette à l'utilisateur superette :
+̀`superette=# GRANT ALL PRIVILEGES ON DATABASE superette to superette ;`
+
+Lorsqu'on a suivi le tutoriel jusqu'a l'installation de django, configuration de la base de données,
+et lancé les commandes suivantes pour prendre en compte postgresql et 
+démarrer le serveur :
+
+`̀`̀`
+[9.6.6/1](djangogirls) [perette@bobbynette ~]$ python manage.py  makemigrations
+[9.6.6/1](djangogirls) [perette@bobbynette ~]$ python manage.py migrate
+[9.6.6/1](djangogirls) [perette@bobbynette ~]$ python manage.py runserver 0.0.0.0:8000
+`̀`̀`
+
+Se connecter à l'instance PostgreSQL utilisée, et afficher les tables
+créées lorsque la commande migrate à été tapée :
+
+```
+superette=# \dt
+                    Liste des relations
+ Schéma |            Nom             | Type  | Propriétaire 
+--------+----------------------------+-------+--------------
+ public | auth_group                 | table | superette
+ public | auth_group_permissions     | table | superette
+ public | auth_permission            | table | superette
+ public | auth_user                  | table | superette
+ public | auth_user_groups           | table | superette
+ public | auth_user_user_permissions | table | superette
+ public | blog_post                  | table | superette
+ public | django_admin_log           | table | superette
+ public | django_content_type        | table | superette
+ public | django_migrations          | table | superette
+ public | django_session             | table | superette
+(11 lignes)
+```
+
+Vérifier que l'interface est up sur un navigateur : 
+
+http://127.0.0.1:8000/
+
+Continuer le tutoriel, créer le blog, et ensuite réaliser la partie admin :
+
+https://tutorial.djangogirls.org/fr/django_admin/
+
+(admin user = perette/perette123)
